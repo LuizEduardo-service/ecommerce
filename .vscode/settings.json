@@ -1,0 +1,10 @@
+{
+    "editor.formatOnSave": false,
+    "files.associations": {
+        "**/templates/**/*.html": "django-html",
+        "**/templates/**/*.css": "css"
+    },
+    "emmet.includeLanguages": {
+        "django-html": "html"
+    }
+}
