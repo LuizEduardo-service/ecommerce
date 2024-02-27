@@ -2,22 +2,14 @@ from django.db import models
 from PIL import Image
 import os
 from django.conf import settings
-# Create your models here.
-
-"""    
-    Variacao:
-        nome - char
-        produto - FK Produto
-        preco - Float
-        preco_promocional - Float
-        estoque - Int"""
+from django.utils.text import slugify
 
 class Produto(models.Model):
     nome = models.CharField(max_length=255)
     descricao_curta = models.TextField(max_length=255)
     descricao_longa = models.TextField()
     imagem = models.ImageField(upload_to='produto_imagens/%Y/%m', blank=True, null=True)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
     preco_marketing = models.FloatField()
     preco_marketing_promocional = models.FloatField(default=0)
     tipo = models.CharField(default='V', max_length=1, choices=(('V', 'Variação'), ('S', 'Simples')))
@@ -25,6 +17,14 @@ class Produto(models.Model):
     class Meta:
         verbose_name = 'Produto'
         verbose_name_plural = 'Produtos'
+
+    def get_preco_formatado(self):
+        return f'R$ {self.preco_marketing:.2f}'.replace('.', ',')
+    get_preco_formatado.short_description = 'Preço'
+
+    def get_preco_formatado_promo(self):
+        return f'R$ {self.preco_marketing_promocional:.2f}'.replace('.', ',')
+    get_preco_formatado_promo.short_description = 'Preço Promo'
 
     @staticmethod
     def resize_image(img, new_width=800):
@@ -34,10 +34,10 @@ class Produto(models.Model):
         new_height = round(new_width * original_height) / original_width
 
 
-        if original_width <= new_width:
-            img_pil.close()
+        # if original_width <= new_width:
+        #     img_pil.close()
 
-        new_img = img_pil.resize((new_width, new_height), Image.LANCZOS)
+        new_img = img_pil.resize((new_width, int(new_height)), Image.LANCZOS)
         new_img.save(
             img_full_path,
             optimize=True,
@@ -47,6 +47,11 @@ class Produto(models.Model):
         print(img.name)
 
     def save(self, *args, **kwargs):
+
+        if not self.slug:
+            slug = f'{slugify(self.nome)}-{self.pk}'
+            self.slug = slug
+
         super().save(*args, **kwargs)
 
         image_size = 800
