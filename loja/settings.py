@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'produto',
     'crispy_forms',
     'crispy_bootstrap4',
-    "debug_toolbar",
+    # "debug_toolbar",
 ]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
@@ -56,7 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     
 
 ]

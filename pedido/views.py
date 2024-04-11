@@ -1,7 +1,7 @@
 from typing import Any
 from django.db.models.query import QuerySet
 from django.shortcuts import render,redirect
-from django.views.generic import ListView, DeleteView
+from django.views.generic import ListView, DeleteView, DetailView
 from django.views import View
 from django.http import HttpRequest, HttpResponse
 from django.contrib import messages
@@ -11,25 +11,26 @@ from django.urls import reverse
 from utils import utils
 from .models import ItemPedido, Pedido
 
-class DispathLoginRequired(View):
+class DispathLoginRequiredMixin(View):
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
 
         if not self.request.user.is_authenticated:
             return redirect('perfil:criar')
         
         return super().dispatch(request, *args, **kwargs)
-
-class Pagar(DispathLoginRequired, DeleteView):
-    template_name = 'pedido/pagar.html'
-    model = Pedido
-    pk_url_kwarg = 'pk'
-    context_object_name = 'pedido'
-
-    def get_queryset(self):
+    
+    def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset(*args, **kwargs)
         qs = qs.filter(user=self.request.user)
         return qs
 
+class Pagar(DispathLoginRequiredMixin, DetailView):
+    template_name = 'pedido/pagar.html'
+    model = Pedido
+    pk_url_kwarg = 'pk'
+    context_object_name = 'pedido'
+    ordering = ['-id']
+    
 
 
 
@@ -110,10 +111,15 @@ class SalvarPedido(View):
             )
         )
 
-class Detalhe(View):
-    def get(self,*args, **kwargs):
-        return HttpResponse('Detalhe')
-    
-class Lista(View):
-    def get(self,*args, **kwargs):
-        return HttpResponse('Lista')
+class Detalhe(DispathLoginRequiredMixin, DetailView):
+    model = Pedido
+    template_name = 'pedido/detalhe.html'
+    context_object_name = 'pedido'
+    pk_url_kwarg = 'pk'
+  
+
+class Lista(DispathLoginRequiredMixin, ListView):
+    model = Pedido
+    template_name = 'pedido/lista.html'
+    context_object_name = 'pedidos'
+    paginate_by = 10
