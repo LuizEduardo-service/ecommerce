@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
+app_name = 'pedido'
 class Pedido(models.Model):
     STATUS_PEDIDO = (
         ('A', 'Aprovado'),
@@ -13,6 +13,7 @@ class Pedido(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     total = models.FloatField()
+    qtd_total = models.PositiveBigIntegerField()
     status = models.CharField(max_length=1,
                               default= "C",
                               choices=STATUS_PEDIDO)
